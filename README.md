@@ -1,54 +1,59 @@
 # ImageResizer - Batch Web Image Optimizer GUI
 
-![Demo](screenshot.png)
+![ImageResizer Demo](screenshot.png)
 
-Drag & drop folder, pick size (1920/1200/800px), get optimized JPGs in /resized/.
+Drag files OR folders -> Pick size -> Optimized JPGs in /resized/
 
-## Features
-- Drag-drop folders
-- Web presets: 1920px hero, 1200px large, 800px thumbs
-- Smart skip small images (optional copy)
-- Recursive subfolder scan
+Features
+- Drag & Drop: Single files, multiple files, OR folders
+- Smart Logic:
+  - Files -> resize only those (/parent/resized/)
+  - Folders -> full recursive batch
+- Presets: 1920px hero, 1200px large, 800px thumbs
+- Copy small images checkbox
 - Progress + stats
-- Standalone Windows EXE
+- Standalone EXE
 
-## Quick Start - Windows EXE
-1. Download ImageResizer.exe (Releases tab)
-2. Double-click icon
-3. Drag folder or Browse
-4. Pick size, Resize Images
-5. Output: /resized/ folder
+Quick Start
 
-## Python
+Windows (EXE - Recommended)
+Download ImageResizer.exe -> Double-click -> Drag JPG/folder -> Resize!
+
+Python
 pip install pillow tkinterdnd2
 python image_resizer.py
 
-## Build EXE
-Download image.ico + run build_exe.bat
+Examples
+Drop single JPG:
+photos/art.jpg -> photos/resized/art.jpg
 
-## Example
-Input photos/
-- IMG_001.jpg (4000x3000, 7MB)
+Drop folder:
+photos/ -> photos/resized/all-your-images.jpg
 
-Output photos/resized/
-- IMG_001.jpg (1920px max, 180KB)
+Build EXE
+Download image.ico + image_resizer.py -> run build_exe.bat
+Get dist/ImageResizer.exe
 
-## Sample Results
-Original     | Resized     | Savings
--------------|-------------|--------
-4000x3000 7MB| 1920x1440 185KB | 97%
-3000x4000 5MB| 1200x1600 112KB | 98%
+Sample Results
 
-## Tech
-Python 3.8+ / Tkinter (built-in GUI), Pillow, tkinterdnd2, PyInstaller
+Original           | Resized             | Savings
+------------------|---------------------|--------
+4000x3000 7.2MB   | 1920x1440 185KB    | 97%
+3000x4000 5.8MB   | 1200x1600 112KB    | 98%
 
-## Credits
-- Icon: FadeMind/W-ICO (Public Domain)
-- tkinterdnd2: pmgagne
-- Perplexity AI: Script help
-- Pillow: Image optimization
+Tech Stack
+- Python 3.8+ / Tkinter (built-in GUI)
+- Pillow - Image processing
+- tkinterdnd2 - Drag & drop
+- PyInstaller - Windows EXE
 
-## License
-MIT © 2026 pmonk.com
+Credits
+- Icon: Windows 11 Photos by FadeMind/W-ICO (Public Domain) https://github.com/FadeMind/W-ICO
+- tkinterdnd2: https://github.com/pmgagne/tkinterdnd2
+- Perplexity AI: Script generation
+- Pillow: https://pillow.readthedocs.io
 
-Free for personal, commercial, whatever. No warranty. Test on copies first!
+License
+MIT License - © 2026 pmonk.com (Austin, TX)
+
+Free for all uses. No warranty—test on copies!
