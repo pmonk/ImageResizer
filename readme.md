@@ -52,7 +52,8 @@ Tech Stack
 Credits
 - Icon: Windows 11 Photos by FadeMind/W-ICO (Public Domain) https://github.com/FadeMind/W-ICO
 - tkinterdnd2: https://github.com/pmgagne/tkinterdnd2
-- Perplexity AI: Script generation
+- Script refinement - Qwen3 local
+- Original brainstorming scripts - Perplexity AI
 - Pillow: https://pillow.readthedocs.io
 
 License
