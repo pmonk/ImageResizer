@@ -9,8 +9,10 @@ Features
 - Smart Logic:
   - Files -> resize only those (/parent/resized/)
   - Folders -> full recursive batch
-- Presets: 1920px hero, 1200px large, 800px thumbs
+- Presets: 1920px hero, 1200px large, 800px thumbs, 300px thumbnails
 - Copy small images checkbox
+- Create 300x300 thumbnails checkbox
+- Thumbnail format options: zoom, black bars, white bars, transparent - .png
 - Progress + stats
 - Standalone EXE
 

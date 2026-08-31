@@ -11,7 +11,7 @@ class ImageResizerApp:
     def __init__(self, root):
         self.root = root
         self.root.title("Web Image Batch Resizer")
-        self.root.geometry("500x350")
+        self.root.geometry("500x450")  # Increased height to accommodate all elements
 
         # Root window handles drag-drop (reliable on Windows)
         self.root.drop_target_register(DND_FILES)
@@ -19,7 +19,7 @@ class ImageResizerApp:
 
         self.folder_path = ""
         self.dropped_paths = []  # files and/or folders from drag-drop
-        self.max_sizes = [1920, 1200, 800]
+        self.max_sizes = [1920, 1200, 800, 300]
 
         # Drop zone label (click to browse)
         self.drop_label = tk.Label(
@@ -55,6 +55,24 @@ class ImageResizerApp:
         tk.Checkbutton(
             root, text="Copy small images too", variable=self.copy_small
         ).pack(pady=5)
+
+        # Checkbox for creating thumbnails (300x300)
+        self.create_thumbnails = tk.BooleanVar(value=False)
+        tk.Checkbutton(
+            root, text="Create 300x300 thumbnails", variable=self.create_thumbnails
+        ).pack(pady=5)
+
+        # Thumbnail format selection
+        tk.Label(root, text="Thumbnail format:").pack(pady=5)
+        self.thumbnail_format = tk.StringVar(value="zoom")
+        thumbnail_formats = ttk.Combobox(
+            root,
+            textvariable=self.thumbnail_format,
+            values=["zoom", "black bars", "white bars", "transparent - .png"],
+            state="readonly",
+            width=15,
+        )
+        thumbnail_formats.pack(pady=5)
 
         # Progress bar
         self.progress = ttk.Progressbar(root, mode="determinate")
@@ -200,6 +218,75 @@ class ImageResizerApp:
                         (new_w, new_h), Image.Resampling.LANCZOS
                     )
                     base, _ = os.path.splitext(os.path.basename(img_path))
+                    
+                    # Handle thumbnail creation
+                    if self.create_thumbnails.get():
+                        # Create a separate thumbnail directory
+                        thumb_dir = output_dir / "thumbnails"
+                        thumb_dir.mkdir(exist_ok=True)
+                        
+                        # Create 300x300 thumbnail based on format selection
+                        if self.thumbnail_format.get() == "zoom":
+                            # Scale to shortest side = 300, then crop to make 300x300 square
+                            img_copy = img.copy()
+                            
+                            # Determine which dimension is shorter and scale accordingly
+                            if width <= height:
+                                # Width is shorter - scale width to 300
+                                scale_factor = 300 / width
+                                new_height = int(height * scale_factor)
+                                img_copy = img_copy.resize((300, new_height), Image.Resampling.LANCZOS)
+                                
+                                # Crop center to make 300x300
+                                crop_top = (new_height - 300) // 2
+                                img_copy = img_copy.crop((0, crop_top, 300, crop_top + 300))
+                            else:
+                                # Height is shorter - scale height to 300
+                                scale_factor = 300 / height
+                                new_width = int(width * scale_factor)
+                                img_copy = img_copy.resize((new_width, 300), Image.Resampling.LANCZOS)
+                                
+                                # Crop center to make 300x300
+                                crop_left = (new_width - 300) // 2
+                                img_copy = img_copy.crop((crop_left, 0, crop_left + 300, 300))
+                            
+                            thumb_path = thumb_dir / f"{base}_thumb.jpg"
+                            img_copy.convert("RGB").save(thumb_path, "JPEG", quality=92, optimize=True)
+                            
+                        elif self.thumbnail_format.get() == "black bars":
+                            # Resize with black bars (letterbox)
+                            img_copy = img.copy()
+                            img_copy.thumbnail((300, 300), Image.Resampling.LANCZOS)
+                            thumb = Image.new("RGB", (300, 300), "black")
+                            paste_x = (300 - img_copy.width) // 2
+                            paste_y = (300 - img_copy.height) // 2
+                            thumb.paste(img_copy, (paste_x, paste_y))
+                            thumb_path = thumb_dir / f"{base}_thumb.jpg"
+                            thumb.save(thumb_path, "JPEG", quality=92, optimize=True)
+                            
+                        elif self.thumbnail_format.get() == "white bars":
+                            # Resize with white bars (letterbox)
+                            img_copy = img.copy()
+                            img_copy.thumbnail((300, 300), Image.Resampling.LANCZOS)
+                            thumb = Image.new("RGB", (300, 300), "white")
+                            paste_x = (300 - img_copy.width) // 2
+                            paste_y = (300 - img_copy.height) // 2
+                            thumb.paste(img_copy, (paste_x, paste_y))
+                            thumb_path = thumb_dir / f"{base}_thumb.jpg"
+                            thumb.save(thumb_path, "JPEG", quality=92, optimize=True)
+                            
+                        elif self.thumbnail_format.get() == "transparent - .png":
+                            # Resize with transparent background
+                            img_copy = img.copy()
+                            img_copy.thumbnail((300, 300), Image.Resampling.LANCZOS)
+                            thumb = Image.new("RGBA", (300, 300), (0, 0, 0, 0))  # Transparent background
+                            paste_x = (300 - img_copy.width) // 2
+                            paste_y = (300 - img_copy.height) // 2
+                            thumb.paste(img_copy, (paste_x, paste_y))
+                            thumb_path = thumb_dir / f"{base}_thumb.png"
+                            thumb.save(thumb_path, "PNG", optimize=True)
+                    
+                    # Save main image in original format (no changes to existing behavior)
                     out_path = output_dir / f"{base}.jpg"
                     resized.convert("RGB").save(
                         out_path, "JPEG", quality=92, optimize=True
@@ -212,9 +299,14 @@ class ImageResizerApp:
             self.progress["value"] = i + 1
             self.root.update()
 
+        # Show results message with thumbnail info
+        result_msg = f"Processed: {processed}\nSkipped: {skipped}\nErrors: {errors}\n→ {output_dir}"
+        if self.create_thumbnails.get():
+            result_msg += f"\n\nThumbnails created in /thumbnails/ folder (format: {self.thumbnail_format.get()})"
+        
         messagebox.showinfo(
             "Complete",
-            f"Processed: {processed}\nSkipped: {skipped}\nErrors: {errors}\n→ {output_dir}",
+            result_msg
         )
 
 
